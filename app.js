@@ -1,4 +1,8 @@
-const $ = id => document.getElementById(id);
+// app.js (FULL) — includes: link generate + copy, preview, back/reset,
+// NO clickable (wiggle via CSS) + small move after click, YES grows,
+// shared link opens question page, and URL is cleaned (no names shown)
+
+const $ = (id) => document.getElementById(id);
 
 const generator = $("generator");
 const question = $("question");
@@ -33,112 +37,146 @@ const noMessages = [
   "Okay… YES 😭"
 ];
 
-function show(el){el.classList.remove("hidden")}
-function hide(el){el.classList.add("hidden")}
+function show(el) { el.classList.remove("hidden"); }
+function hide(el) { el.classList.add("hidden"); }
 
-function resetState(){
+function resetState() {
   noClicks = 0;
   noBtn.textContent = "No 😢";
   yesBtn.style.transform = "scale(1)";
+
+  // reset NO position back to CSS default
   noBtn.style.left = "";
   noBtn.style.top = "";
   noBtn.style.right = "40px";
   noBtn.style.bottom = "20px";
 }
 
-function moveNoButton(){
+function getParams() {
+  const u = new URL(location.href);
+  return {
+    from: (u.searchParams.get("from") || "").trim(),
+    to: (u.searchParams.get("to") || "").trim()
+  };
+}
+
+function showGenerator() {
+  show(generator);
+  hide(question);
+  hide(yay);
+}
+
+function showQuestion(from, to) {
+  resetState();
+  hide(generator);
+  show(question);
+  hide(yay);
+
+  const safeFrom = from || "Someone";
+  const safeTo = to || "You";
+
+  namesChip.textContent = `${safeFrom} → ${safeTo}`;
+  questionTitle.textContent = `${safeTo}, will you be my Valentine?`;
+  loveFrom.textContent = `Love from ${safeFrom}`;
+}
+
+function showYay(from) {
+  hide(generator);
+  hide(question);
+  show(yay);
+  // You can customize this text if you want
+  // (Your current yay screen in HTML doesn't show from/to, so we keep it simple)
+}
+
+function moveNoButtonSmall() {
   const stage = document.querySelector(".stage");
   const maxX = stage.clientWidth - noBtn.clientWidth;
   const maxY = stage.clientHeight - noBtn.clientHeight;
 
-  // small, safe movement (always clickable)
+  // Small, safe movement so it's still clickable
   const x = maxX * 0.55 + Math.random() * 40;
   const y = maxY * 0.55 + Math.random() * 30;
 
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
   noBtn.style.right = "auto";
   noBtn.style.bottom = "auto";
 }
 
-function getParams(){
-  const u = new URL(location.href);
-  return {
-    from: u.searchParams.get("from"),
-    to: u.searchParams.get("to")
-  };
-}
-
 // CREATE LINK
 createBtn.onclick = () => {
-  if(!fromInput.value || !toInput.value)
-    return alert("Fill both names");
+  const from = fromInput.value.trim();
+  const to = toInput.value.trim();
+  if (!from || !to) return alert("Fill both names");
 
   const url = new URL(location.href);
-  url.searchParams.set("from", fromInput.value);
-  url.searchParams.set("to", toInput.value);
+  url.searchParams.set("from", from);
+  url.searchParams.set("to", to);
 
   linkOut.value = url.toString();
   linkBox.classList.remove("hidden");
 };
 
-// COPY
+// COPY LINK
 copyBtn.onclick = async () => {
-  await navigator.clipboard.writeText(linkOut.value);
-  copyToast.classList.remove("hidden");
-  setTimeout(()=>copyToast.classList.add("hidden"),1200);
+  try {
+    await navigator.clipboard.writeText(linkOut.value);
+    copyToast.classList.remove("hidden");
+    setTimeout(() => copyToast.classList.add("hidden"), 1200);
+  } catch {
+    linkOut.select();
+    document.execCommand("copy");
+  }
 };
 
-// PREVIEW
+// PREVIEW (no URL change)
 previewBtn.onclick = () => {
-  if(!fromInput.value || !toInput.value) return;
-  resetState();
-  hide(generator);
-  show(question);
-  namesChip.textContent = `${fromInput.value} → ${toInput.value}`;
-  questionTitle.textContent = `${toInput.value}, will you be my Valentine?`;
-  loveFrom.textContent = `Love from ${fromInput.value}`;
+  const from = fromInput.value.trim();
+  const to = toInput.value.trim();
+  if (!from || !to) return alert("Fill both names");
+  showQuestion(from, to);
 };
 
 // BACK
 backBtn.onclick = () => {
   resetState();
+  // remove any params if present
   history.pushState({}, "", location.pathname);
-  hide(question);
-  hide(yay);
-  show(generator);
-};
-
-// YES
-yesBtn.onclick = () => {
-  hide(question);
-  show(yay);
+  showGenerator();
 };
 
 // AGAIN
 againBtn.onclick = () => {
   resetState();
-  hide(yay);
-  show(generator);
+  history.pushState({}, "", location.pathname);
+  showGenerator();
 };
 
-// NO
+// YES
+yesBtn.onclick = () => {
+  showYay();
+};
+
+// NO (clickable)
 noBtn.onclick = () => {
   noClicks++;
-  noBtn.textContent =
-    noMessages[Math.min(noClicks - 1, noMessages.length - 1)];
+
+  noBtn.textContent = noMessages[Math.min(noClicks - 1, noMessages.length - 1)];
   yesBtn.style.transform = `scale(${1 + noClicks * 0.15})`;
-  moveNoButton();
+
+  // move NO a little AFTER click
+  moveNoButtonSmall();
 };
 
-// AUTO OPEN FROM SHARED LINK
+// AUTO OPEN FROM SHARED LINK + CLEAN URL (no names shown)
 (() => {
-  const {from, to} = getParams();
-  if(from && to){
-    hide(generator);
-    show(question);
-    namesChip.textContent = `${from} → ${to}`;
-    questionTitle.textContent = `${to}, will you be my Valentine?`;
-    loveFrom.textContent = `Love from ${from}`;
+  const { from, to } = getParams();
+  if (from && to) {
+    showQuestion(from, to);
+
+    // ✅ remove ?from= &to= from address bar
+    history.replaceState({}, "", location.pathname);
+  } else {
+    showGenerator();
   }
 })();
