@@ -1,0 +1,143 @@
+:root{
+  --bg:#0b0b12;
+  --card:#121224cc;
+  --stroke:#ffffff1a;
+  --text:#f4f4ff;
+  --muted:#c8c8dc;
+  --pink:#ff4d8d;
+  --danger:#ff3b3b;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, Arial;
+  background:
+    radial-gradient(900px 600px at 20% 10%, #ff4d8d30 0%, transparent 60%),
+    radial-gradient(900px 600px at 80% 20%, #ff78ad25 0%, transparent 55%),
+    var(--bg);
+  color:var(--text);
+}
+.global-foot{
+  position:fixed;
+  bottom:12px;
+  width:100%;
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+}
+
+
+.wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.card{
+  width:420px;
+  padding:26px;
+  background:linear-gradient(180deg,var(--card),#0e0e18cc);
+  border-radius:18px;
+  border:1px solid var(--stroke);
+  backdrop-filter:blur(12px);
+  box-shadow:0 20px 80px #00000080;
+  text-align:center;
+}
+
+.hidden{display:none}
+.muted{color:var(--muted)}
+
+.form{margin-top:20px; display:grid; gap:12px}
+label span{font-size:13px; color:var(--muted)}
+
+input{
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--stroke);
+  background:#0c0c15;
+  color:white;
+}
+
+.actions{
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+
+.actions.center{justify-content:center}
+
+.btn{
+  padding:12px 18px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.btn.primary{
+  background:linear-gradient(180deg,var(--pink),#ff2f79);
+  color:white;
+}
+
+.btn.danger{
+  background:linear-gradient(180deg,var(--danger),#c81b1b);
+  color:white;
+}
+
+.big{font-size:18px}
+
+.stage{
+  position:relative;
+  height:220px;
+  margin-top:20px;
+  border-radius:16px;
+  border:1px solid #ffffff18;
+}
+
+/* YES */
+#yesBtn{
+  position:absolute;
+  left:40px;
+  bottom:20px;
+  transition:transform .25s ease;
+}
+
+/* NO – clickable, tiny wiggle only */
+#noBtn{
+  position:absolute;
+  right:40px;
+  bottom:20px;
+}
+
+#noBtn:hover{
+  animation: tease 0.25s ease-in-out infinite alternate;
+}
+
+@keyframes tease{
+  from{transform:translate(0,0)}
+  to{transform:translate(5px,-3px)}
+}
+
+.linkbox{
+  margin-top:10px;
+  display:flex;
+  gap:8px;
+}
+
+.toast{
+  font-size:13px;
+  color:#bfffc9;
+}
+
+.bg-hearts{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.3;
+  background-image:
+    radial-gradient(circle,#ff4d8d55 2px,transparent 3px);
+  background-size:200px 200px;
+}

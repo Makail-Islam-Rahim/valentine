@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Be My Valentine?</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg-hearts" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <!-- GENERATOR -->
+    <section id="generator" class="card">
+      <header class="head">
+        <h1>Valentine Link Generator</h1>
+        <p>Create a cute surprise 💖</p>
+      </header>
+
+      <div class="form">
+        <label>
+          <span>Your Name</span>
+          <input id="fromInput" placeholder="e.g., Makail">
+        </label>
+
+        <label>
+          <span>Partner's Name</span>
+          <input id="toInput" placeholder="e.g., Sara">
+        </label>
+
+        <div class="actions">
+          <button id="createBtn" class="btn primary">✨ Create Link</button>
+          <button id="previewBtn" class="btn">Preview</button>
+        </div>
+
+        <div id="linkBox" class="linkbox hidden">
+          <input id="linkOut" readonly />
+          <button id="copyBtn" class="btn small">Copy</button>
+          <div id="copyToast" class="toast hidden">Copied ✅</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUESTION -->
+    <section id="question" class="card hidden">
+      <div class="question-top">
+        <div class="chip" id="namesChip"></div>
+        <h2 id="questionTitle"></h2>
+        <p class="muted" id="loveFrom"></p>
+      </div>
+
+      <div class="stage">
+        <button id="yesBtn" class="btn primary big">Yes ❤️</button>
+        <button id="noBtn" class="btn danger big">No 😢</button>
+      </div>
+
+      <div class="actions center">
+        <button id="backBtn" class="btn small">⬅ Back</button>
+      </div>
+    </section>
+
+    <!-- YAY -->
+    <section id="yay" class="card hidden">
+      <h2 class="yayTitle">Yaaay!yessssssssssssssssssssssss!! ❤️</h2>
+      <p class="yayText">I knew it 😍, I love you </p>
+      <button id="againBtn" class="btn primary">Again</button>
+    </section>
+    <footer class="foot global-foot">
+        <small>Developed by <strong>Makail</strong></small>
+    </footer>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
