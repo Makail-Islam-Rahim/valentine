@@ -1,7 +1,3 @@
-// app.js (FULL) — includes: link generate + copy, preview, back/reset,
-// NO clickable (wiggle via CSS) + small move after click, YES grows,
-// shared link opens question page, and URL is cleaned (no names shown)
-
 const $ = (id) => document.getElementById(id);
 
 const generator = $("generator");
@@ -37,6 +33,7 @@ const noMessages = [
   "Okay… YES 😭"
 ];
 
+// ---------------- HELPERS ----------------
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
@@ -44,8 +41,6 @@ function resetState() {
   noClicks = 0;
   noBtn.textContent = "No 😢";
   yesBtn.style.transform = "scale(1)";
-
-  // reset NO position back to CSS default
   noBtn.style.left = "";
   noBtn.style.top = "";
   noBtn.style.right = "40px";
@@ -53,11 +48,25 @@ function resetState() {
 }
 
 function getParams() {
-  const u = new URL(location.href);
+  const u = new URL(window.location.href);
   return {
     from: (u.searchParams.get("from") || "").trim(),
     to: (u.searchParams.get("to") || "").trim()
   };
+}
+
+function moveNoButtonSmall() {
+  const stage = document.querySelector(".stage");
+  const maxX = stage.clientWidth - noBtn.clientWidth;
+  const maxY = stage.clientHeight - noBtn.clientHeight;
+
+  const x = maxX * 0.55 + Math.random() * 40;
+  const y = maxY * 0.55 + Math.random() * 30;
+
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
+  noBtn.style.right = "auto";
+  noBtn.style.bottom = "auto";
 }
 
 function showGenerator() {
@@ -72,36 +81,12 @@ function showQuestion(from, to) {
   show(question);
   hide(yay);
 
-  const safeFrom = from || "Someone";
-  const safeTo = to || "You";
-
-  namesChip.textContent = `${safeFrom} → ${safeTo}`;
-  questionTitle.textContent = `${safeTo}, will you be my Valentine?`;
-  loveFrom.textContent = `Love from ${safeFrom}`;
+  namesChip.textContent = `${from} → ${to}`;
+  questionTitle.textContent = `${to}, will you be my Valentine?`;
+  loveFrom.textContent = `Love from ${from}`;
 }
 
-function showYay(from) {
-  hide(generator);
-  hide(question);
-  show(yay);
-  // You can customize this text if you want
-  // (Your current yay screen in HTML doesn't show from/to, so we keep it simple)
-}
-
-function moveNoButtonSmall() {
-  const stage = document.querySelector(".stage");
-  const maxX = stage.clientWidth - noBtn.clientWidth;
-  const maxY = stage.clientHeight - noBtn.clientHeight;
-
-  // Small, safe movement so it's still clickable
-  const x = maxX * 0.55 + Math.random() * 40;
-  const y = maxY * 0.55 + Math.random() * 30;
-
-  noBtn.style.left = `${x}px`;
-  noBtn.style.top = `${y}px`;
-  noBtn.style.right = "auto";
-  noBtn.style.bottom = "auto";
-}
+// ---------------- BUTTON ACTIONS ----------------
 
 // CREATE LINK
 createBtn.onclick = () => {
@@ -109,7 +94,7 @@ createBtn.onclick = () => {
   const to = toInput.value.trim();
   if (!from || !to) return alert("Fill both names");
 
-  const url = new URL(location.href);
+  const url = new URL(window.location.href);
   url.searchParams.set("from", from);
   url.searchParams.set("to", to);
 
@@ -119,17 +104,12 @@ createBtn.onclick = () => {
 
 // COPY LINK
 copyBtn.onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(linkOut.value);
-    copyToast.classList.remove("hidden");
-    setTimeout(() => copyToast.classList.add("hidden"), 1200);
-  } catch {
-    linkOut.select();
-    document.execCommand("copy");
-  }
+  await navigator.clipboard.writeText(linkOut.value);
+  copyToast.classList.remove("hidden");
+  setTimeout(() => copyToast.classList.add("hidden"), 1200);
 };
 
-// PREVIEW (no URL change)
+// PREVIEW
 previewBtn.onclick = () => {
   const from = fromInput.value.trim();
   const to = toInput.value.trim();
@@ -140,7 +120,6 @@ previewBtn.onclick = () => {
 // BACK
 backBtn.onclick = () => {
   resetState();
-  // remove any params if present
   history.pushState({}, "", location.pathname);
   showGenerator();
 };
@@ -154,27 +133,27 @@ againBtn.onclick = () => {
 
 // YES
 yesBtn.onclick = () => {
-  showYay();
+  hide(question);
+  show(yay);
 };
 
-// NO (clickable)
+// NO (CLICKABLE)
 noBtn.onclick = () => {
   noClicks++;
-
-  noBtn.textContent = noMessages[Math.min(noClicks - 1, noMessages.length - 1)];
+  noBtn.textContent =
+    noMessages[Math.min(noClicks - 1, noMessages.length - 1)];
   yesBtn.style.transform = `scale(${1 + noClicks * 0.15})`;
-
-  // move NO a little AFTER click
   moveNoButtonSmall();
 };
 
-// AUTO OPEN FROM SHARED LINK + CLEAN URL (no names shown)
+// ---------------- AUTO OPEN FROM LINK ----------------
 (() => {
   const { from, to } = getParams();
+
   if (from && to) {
     showQuestion(from, to);
 
-    // ✅ remove ?from= &to= from address bar
+    // ✅ THIS LINE HIDES ?from= &to= FROM URL
     history.replaceState({}, "", location.pathname);
   } else {
     showGenerator();
